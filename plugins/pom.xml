@@ -46,6 +46,7 @@
         <module>activemq-client</module>
         <module>cxf</module>
         <module>hystrix</module>
+        <module>jboss</module>
     </modules>
 
     <dependencies>
@@ -219,6 +220,11 @@
 	    <artifactId>pinpoint-weblogic-plugin</artifactId>
 	    <version>${project.version}</version>
 	</dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-jboss-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
 </project>

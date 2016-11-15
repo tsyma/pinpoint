@@ -25,7 +25,6 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
@@ -121,7 +120,7 @@ public class ASMClassNodeAdapterTest {
                 adapter.addGetterMethod(getterMethodName, field);
             }
         });
-        Class clazz = classLoader.loadClass(targetClassName);
+        Class<?> clazz = classLoader.loadClass(targetClassName);
         Method method = clazz.getDeclaredMethod(getterMethodName);
         assertEquals(0, method.invoke(clazz.newInstance()));
     }
@@ -141,7 +140,7 @@ public class ASMClassNodeAdapterTest {
                 adapter.addSetterMethod(setterMethodName, field);
             }
         });
-        Class clazz = classLoader.loadClass(targetClassName);
+        Class<?> clazz = classLoader.loadClass(targetClassName);
         Method method = clazz.getDeclaredMethod(setterMethodName, int.class);
         method.invoke(clazz.newInstance(), 10);
     }

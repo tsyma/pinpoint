@@ -69,7 +69,7 @@ public class MockAgent extends DefaultAgent {
                 throw new FileNotFoundException("pinpoint.config not found. configPath:" + configPath);
             }
             profilerConfig = DefaultProfilerConfig.load(resource.getPath());
-            profilerConfig.setApplicationServerType(ServiceType.TEST_STAND_ALONE.getName());
+            ((DefaultProfilerConfig)profilerConfig).setApplicationServerType(ServiceType.TEST_STAND_ALONE.getName());
         } catch (IOException ex) {
             throw new RuntimeException(ex.getMessage(), ex);
         }
@@ -78,7 +78,7 @@ public class MockAgent extends DefaultAgent {
     }
     
     public static MockAgent of(ProfilerConfig config) {
-        AgentOption agentOption = new DefaultAgentOption("", new DummyInstrumentation(), config, new URL[0], null, new DefaultServiceTypeRegistryService(), new DefaultAnnotationKeyRegistryService());
+        AgentOption agentOption = new DefaultAgentOption(new DummyInstrumentation(), "mockAgent", "mockApplicationName", config, new URL[0], null, new DefaultServiceTypeRegistryService(), new DefaultAnnotationKeyRegistryService());
         InterceptorRegistryBinder binder = new TestInterceptorRegistryBinder();
         
         return new MockAgent(agentOption, binder);

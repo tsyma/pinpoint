@@ -23,8 +23,6 @@ import org.objectweb.asm.tree.MethodNode;
 import java.lang.reflect.Method;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-
 public class ASMMethodNodeAdapterRemapMethodInsnNodeTest {
     private ASMClassNodeLoader.TestClassLoader classLoader;
 
@@ -54,7 +52,7 @@ public class ASMMethodNodeAdapterRemapMethodInsnNodeTest {
                 }
             }
         });
-        Class clazz = classLoader.loadClass(targetClassName);
+        Class<?> clazz = classLoader.loadClass(targetClassName);
         Method method = clazz.getMethod("getHeader", String.class);
         final String result = (String) method.invoke(clazz.newInstance(), "bar");
         System.out.println(result);

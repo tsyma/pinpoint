@@ -31,6 +31,11 @@
             <name>bintray</name>
             <url>http://jcenter.bintray.com</url>
         </repository>
+        <repository>
+            <id>jboss-3rd-party-releases</id>
+            <name>Jboss Third Party Repository</name>
+            <url>https://repository.jboss.org/nexus/content/repositories/thirdparty-releases/</url>
+	    </repository>
     </repositories>
 
     <pluginRepositories>
@@ -354,12 +359,6 @@
             </dependency>
 
             <dependency>
-                <groupId>com.lmax</groupId>
-                <artifactId>disruptor</artifactId>
-                <version>3.3.4</version>
-            </dependency>
-
-            <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>${slf4j.version}</version>
@@ -569,7 +568,7 @@
             <dependency>
                 <groupId>org.javassist</groupId>
                 <artifactId>javassist</artifactId>
-                <version>3.20.0-GA</version>
+                <version>3.21.0-GA</version>
             </dependency>
             <dependency>
                 <groupId>cglib</groupId>
@@ -821,6 +820,7 @@
                     <excludes>
                         <exclude>com/navercorp/pinpoint/thrift/dto/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/common/util/apache/**/*.java</exclude>
+                        <exclude>com/navercorp/pinpoint/common/util/jsr166/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/profiler/util/jdk/**/*.java</exclude>
 
                         <!--google guava-->
@@ -889,6 +889,7 @@
                     <excludes>
                         <exclude>com/navercorp/pinpoint/thrift/dto/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/common/util/apache/**/*.java</exclude>
+                        <exclude>com/navercorp/pinpoint/common/util/jsr166/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/profiler/util/jdk/**/*.java</exclude>
 
                         <!--google guava-->
@@ -980,6 +981,7 @@
                     <excludes>
                         <exclude>com/navercorp/pinpoint/thrift/dto/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/common/util/apache/**/*.java</exclude>
+                        <exclude>com/navercorp/pinpoint/common/util/jsr166/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/profiler/util/jdk/**/*.java</exclude>
 
                         <!--google guava-->
@@ -999,6 +1001,7 @@
                     <excludes>
                         <exclude>com/navercorp/pinpoint/thrift/dto/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/common/util/apache/**/*.java</exclude>
+                        <exclude>com/navercorp/pinpoint/common/util/jsr166/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/profiler/util/jdk/**/*.java</exclude>
 
                         <!--google guava-->
