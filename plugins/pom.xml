@@ -12,6 +12,7 @@
     <packaging>pom</packaging>
 
     <modules>
+	    <module>pinpoint-weblogic-plugin</module>
         <module>httpclient3</module>
         <module>httpclient4</module>
         <module>ning-asynchttpclient</module>
@@ -219,6 +220,11 @@
             <artifactId>pinpoint-jboss-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+	    <dependency>
+	        <groupId>com.navercorp.pinpoint</groupId>
+	        <artifactId>pinpoint-weblogic-plugin</artifactId>
+	        <version>${project.version}</version>
+	    </dependency>
     </dependencies>
 
 </project>
