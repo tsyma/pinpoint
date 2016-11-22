@@ -8,10 +8,12 @@ import com.navercorp.pinpoint.bootstrap.sampler.Skipper;
 public class DefaultSkipper implements Skipper {
     private final boolean enabled;
     private final int skipLessThan;
+    private final String toString;
 
     public DefaultSkipper(boolean enabled, int skipLessThan) {
         this.enabled = enabled;
         this.skipLessThan = skipLessThan;
+        this.toString = "DefaultSkipper{enabled=" + enabled + ", skipLessThan=" + skipLessThan + '}';
     }
 
     @Override
@@ -36,9 +38,6 @@ public class DefaultSkipper implements Skipper {
 
     @Override
     public String toString() {
-        return "DefaultSkipper{" +
-                "enabled=" + enabled +
-                ", skipLessThan=" + skipLessThan +
-                '}';
+        return toString;
     }
 }

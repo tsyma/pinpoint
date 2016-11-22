@@ -35,6 +35,7 @@ public final class DefaultTrace implements Trace {
     private static final Logger logger = LoggerFactory.getLogger(DefaultTrace.class.getName());
     private static final boolean isTrace = logger.isTraceEnabled();
     private static final boolean isWarn = logger.isWarnEnabled();
+    private static final boolean isInfo = logger.isInfoEnabled();
 
     private final boolean sampling;
 
@@ -220,7 +221,9 @@ public final class DefaultTrace implements Trace {
 
     private boolean needToLog(Span span) {
         boolean needToLog = skipper.needToLog(span.getElapsed());
-        logger.error("needToLog: {}; time:{} mSec; {}", needToLog, span.getElapsed(), skipper);
+        if (isInfo) {
+            logger.info("needToLog: {}; time:{} mSec; {}", needToLog, span.getElapsed(), skipper);
+        }
         return needToLog;
     }
 
