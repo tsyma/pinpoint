@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerBinder;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
+import com.navercorp.pinpoint.bootstrap.sampler.Skipper;
 import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataHolder;
@@ -58,6 +59,7 @@ import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
 import com.navercorp.pinpoint.profiler.sender.UdpDataSenderFactory;
+import com.navercorp.pinpoint.profiler.skipper.SkipperFactory;
 import com.navercorp.pinpoint.profiler.util.ApplicationServerTypeResolver;
 import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
 import com.navercorp.pinpoint.rpc.ClassPreLoader;
@@ -86,7 +88,7 @@ public class DefaultAgent implements Agent {
     private final PLoggerBinder binder;
 
     private final ClassFileTransformerDispatcher classFileTransformer;
-    
+
     private final ProfilerConfig profilerConfig;
 
     private final AgentInfoSender agentInfoSender;
@@ -109,12 +111,12 @@ public class DefaultAgent implements Agent {
 
     private final InterceptorRegistryBinder interceptorRegistryBinder;
     private final ServiceTypeRegistryService serviceTypeRegistryService;
-    
+
     private final Instrumentation instrumentation;
     private final InstrumentClassPool classPool;
     private final DynamicTransformService dynamicTransformService;
     private final List<DefaultProfilerPluginContext> pluginContexts;
-    
+
 
     static {
         // Preload classes related to pinpoint-rpc module.
@@ -167,7 +169,7 @@ public class DefaultAgent implements Agent {
         dumpConfig(agentOption.getProfilerConfig());
 
         changeStatus(AgentStatus.INITIALIZING);
-        
+
         this.profilerConfig = agentOption.getProfilerConfig();
         this.instrumentation = agentOption.getInstrumentation();
         this.agentOption = agentOption;
@@ -190,11 +192,11 @@ public class DefaultAgent implements Agent {
         ServiceType applicationServerType = this.serviceTypeRegistryService.findServiceTypeByName(applicationServerTypeString);
 
         final ApplicationServerTypeResolver typeResolver = new ApplicationServerTypeResolver(pluginContexts, applicationServerType, profilerConfig.getApplicationTypeDetectOrder());
-        
+
         final AgentInformationFactory agentInformationFactory = new AgentInformationFactory(agentOption.getAgentId(), agentOption.getApplicationName());
         this.agentInformation = agentInformationFactory.createAgentInformation(typeResolver.resolve());
         logger.info("agentInformation:{}", agentInformation);
-        
+
         CommandDispatcher commandDispatcher = new CommandDispatcher();
 
         this.tcpDataSender = createTcpDataSender(commandDispatcher);
@@ -219,7 +221,7 @@ public class DefaultAgent implements Agent {
         this.agentInfoSender = new AgentInfoSender.Builder(tcpDataSender, this.agentInformation, jvmInformationFactory.createJvmInformation()).sendInterval(profilerConfig.getAgentInfoSendRetryInterval()).build();
         this.serverMetaDataHolder.addListener(this.agentInfoSender);
         this.agentStatMonitor = new AgentStatMonitor(this.statDataSender, this.agentInformation.getAgentId(), this.agentInformation.getStartTime(), agentStatCollectorFactory);
-        
+
         InterceptorInvokerHelper.setPropagateException(profilerConfig.isPropagateInterceptorException());
     }
 
@@ -272,14 +274,14 @@ public class DefaultAgent implements Agent {
             }
         }
     }
-    
+
     private TransactionCounter getTransactionCounter(TraceContext traceContext) {
         if (traceContext instanceof DefaultTraceContext) {
             return ((DefaultTraceContext) traceContext).getTransactionCounter();
         }
         return null;
     }
-    
+
     public DynamicTransformService getDynamicTransformService() {
         return dynamicTransformService;
     }
@@ -291,7 +293,7 @@ public class DefaultAgent implements Agent {
     public ClassFileTransformerDispatcher getClassFileTransformerDispatcher() {
         return classFileTransformer;
     }
-    
+
     public InstrumentClassPool getClassPool() {
         return classPool;
     }
@@ -339,10 +341,21 @@ public class DefaultAgent implements Agent {
 
         final Sampler sampler = createSampler();
         logger.info("SamplerType:{}", sampler);
-        
+
+        final Skipper skipper = createSkipper();
+        logger.info("Skipper:{}", skipper);
+
         final int jdbcSqlCacheSize = profilerConfig.getJdbcSqlCacheSize();
         final boolean traceActiveThread = profilerConfig.isTraceAgentActiveThread();
-        final DefaultTraceContext traceContext = new DefaultTraceContext(jdbcSqlCacheSize, this.agentInformation, storageFactory, sampler, this.serverMetaDataHolder, traceActiveThread);
+        final DefaultTraceContext traceContext = new DefaultTraceContext(
+                jdbcSqlCacheSize,
+                this.agentInformation,
+                storageFactory,
+                sampler,
+                skipper,
+                this.serverMetaDataHolder,
+                traceActiveThread
+        );
         traceContext.setPriorityDataSender(this.tcpDataSender);
         traceContext.setProfilerConfig(profilerConfig);
 
@@ -365,7 +378,15 @@ public class DefaultAgent implements Agent {
         SamplerFactory samplerFactory = new SamplerFactory();
         return samplerFactory.createSampler(samplingEnable, samplingRate);
     }
-    
+
+    private Skipper createSkipper() {
+        boolean isSkipDelaysLessThanEnabled = this.profilerConfig.isSkipDelaysLessThanEnabled();
+        int getSkipDelaysLessThanMsec = this.profilerConfig.getSkipDelaysLessThanMsec();
+
+        SkipperFactory skipperFactory = new SkipperFactory();
+        return skipperFactory.createSkipper(isSkipDelaysLessThanEnabled, getSkipDelaysLessThanMsec);
+    }
+
     protected ServerMetaDataHolder createServerMetaDataHolder() {
         List<String> vmArgs = RuntimeMXBeanUtils.getVmArgs();
         ServerMetaDataHolder serverMetaDataHolder = new DefaultServerMetaDataHolder(vmArgs);
@@ -377,9 +398,9 @@ public class DefaultAgent implements Agent {
         pinpointClientFactory.setTimeoutMillis(1000 * 5);
 
         Map<String, Object> properties = this.agentInformation.toMap();
-        
+
         boolean isSupportServerMode = this.profilerConfig.isTcpDataSenderCommandAcceptEnable();
-        
+
         if (isSupportServerMode) {
             pinpointClientFactory.setMessageListener(commandDispatcher);
             pinpointClientFactory.setServerStreamChannelMessageListener(commandDispatcher);
@@ -403,7 +424,7 @@ public class DefaultAgent implements Agent {
         UdpDataSenderFactory factory = new UdpDataSenderFactory(this.profilerConfig.getCollectorStatServerIp(), port, threadName, writeQueueSize, timeout, sendBufferSize);
         return factory.create(profilerConfig.getStatDataSenderSocketType());
     }
-    
+
     protected DataSender createUdpSpanDataSender(int port, String threadName, int writeQueueSize, int timeout, int sendBufferSize) {
         UdpDataSenderFactory factory = new UdpDataSenderFactory(this.profilerConfig.getCollectorSpanServerIp(), port, threadName, writeQueueSize, timeout, sendBufferSize);
         return factory.create(profilerConfig.getSpanDataSenderSocketType());
@@ -428,11 +449,11 @@ public class DefaultAgent implements Agent {
     public AgentInformation getAgentInformation() {
         return agentInformation;
     }
-    
+
     public ServiceTypeRegistryService getServiceTypeRegistryService() {
         return serviceTypeRegistryService;
     }
-    
+
     @Override
     public void start() {
         synchronized (this) {

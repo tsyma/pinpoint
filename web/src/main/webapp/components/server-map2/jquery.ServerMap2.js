@@ -71,6 +71,8 @@
                     'SPRING_BOOT': 'SPRING_BOOT.png',
                     'TOMCAT': 'TOMCAT.png',
                     'TOMCAT_GROUP': 'TOMCAT.png',
+                    'WEBLOGIC': 'WEBLOGIC.png',
+                    'WEBLOGIC_GROUP': 'WEBLOGIC.png',
                     'DUBBO_CONSUMER': 'DUBBO.png',
                     'DUBBO_CONSUMER_GROUP': 'DUBBO.png',
                     'DUBBO_PROVIDER': 'DUBBO.png',

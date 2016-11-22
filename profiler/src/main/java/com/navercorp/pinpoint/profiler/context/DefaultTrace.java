@@ -19,12 +19,12 @@ package com.navercorp.pinpoint.profiler.context;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
+import com.navercorp.pinpoint.bootstrap.sampler.Skipper;
+import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.context.scope.DefaultTraceScopePool;
+import com.navercorp.pinpoint.profiler.context.storage.Storage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.navercorp.pinpoint.exception.PinpointException;
-import com.navercorp.pinpoint.profiler.context.storage.Storage;
 
 /**
  * @author netspider
@@ -42,6 +42,7 @@ public final class DefaultTrace implements Trace {
     private final TraceId traceId;
 
     private final CallStack callStack;
+    private final Skipper skipper;
 
     private Storage storage;
 
@@ -53,14 +54,18 @@ public final class DefaultTrace implements Trace {
     private Thread bindThread;
     private final DefaultTraceScopePool scopePool = new DefaultTraceScopePool();
 
-    public DefaultTrace(final TraceContext traceContext, long transactionId, boolean sampling) {
+    public DefaultTrace(final TraceContext traceContext, long transactionId, boolean sampling, Skipper skipper) {
         if (traceContext == null) {
             throw new NullPointerException("traceContext must not be null");
         }
-        this.traceContext = traceContext;
+        if (skipper == null) {
+            throw new NullPointerException("skipper must not be null");
+        }
         this.traceId = new DefaultTraceId(traceContext.getAgentId(), traceContext.getAgentStartTime(), transactionId);
         this.id = this.traceId.getTransactionSequence();
+        this.traceContext = traceContext;
         this.sampling = sampling;
+        this.skipper=skipper;
 
         final Span span = createSpan();
         this.spanRecorder = new DefaultSpanRecorder(traceContext, span, traceId, sampling);
@@ -70,17 +75,21 @@ public final class DefaultTrace implements Trace {
         setCurrentThread();
     }
 
-    public DefaultTrace(TraceContext traceContext, TraceId continueTraceId, long transactionId, boolean sampling) {
+    public DefaultTrace(TraceContext traceContext, TraceId continueTraceId, long transactionId, boolean sampling, Skipper skipper) {
         if (traceContext == null) {
             throw new NullPointerException("traceContext must not be null");
         }
         if (continueTraceId == null) {
             throw new NullPointerException("continueTraceId must not be null");
         }
-        this.traceContext = traceContext;
+        if (skipper == null) {
+            throw new NullPointerException("skipper must not be null");
+        }
         this.traceId = continueTraceId;
         this.id = transactionId;
+        this.traceContext = traceContext;
         this.sampling = sampling;
+        this.skipper=skipper;
 
         final Span span = createSpan();
         this.spanRecorder = new DefaultSpanRecorder(traceContext, span, traceId, sampling);
@@ -198,16 +207,26 @@ public final class DefaultTrace implements Trace {
             // skip
         } else {
             final Span span = spanRecorder.getSpan();
-            if (span.isTimeRecording()) {
-                span.markAfterTime();
-            }
-            logSpan(span);
+            calcElapsedTime(span);
+            if (needToLog(span)) logSpan(span);
         }
 
         final Storage copyStorage = this.storage;
         if (copyStorage != null) {
             copyStorage.close();
             this.storage = null;
+        }
+    }
+
+    private boolean needToLog(Span span) {
+        boolean needToLog = skipper.needToLog(span.getElapsed());
+        logger.error("needToLog: {}; time:{} mSec; {}", needToLog, span.getElapsed(), skipper);
+        return needToLog;
+    }
+
+    private void calcElapsedTime(Span span) {
+        if (span.isTimeRecording()) {
+            span.markAfterTime();
         }
     }
 

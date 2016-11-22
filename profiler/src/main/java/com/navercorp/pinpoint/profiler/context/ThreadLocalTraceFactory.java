@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
+import com.navercorp.pinpoint.bootstrap.sampler.Skipper;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.context.storage.AsyncStorage;
 import com.navercorp.pinpoint.profiler.context.storage.Storage;
@@ -44,10 +45,11 @@ public class ThreadLocalTraceFactory implements TraceFactory {
 
     private final StorageFactory storageFactory;
     private final Sampler sampler;
+    private final Skipper skipper;
 
     private final IdGenerator idGenerator;
 
-    public ThreadLocalTraceFactory(TraceContext traceContext, StorageFactory storageFactory, Sampler sampler, IdGenerator idGenerator) {
+    public ThreadLocalTraceFactory(TraceContext traceContext, StorageFactory storageFactory, Sampler sampler, Skipper skipper, IdGenerator idGenerator) {
         if (traceContext == null) {
             throw new NullPointerException("traceContext must not be null");
         }
@@ -57,12 +59,16 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         if (sampler == null) {
             throw new NullPointerException("sampler must not be null");
         }
+        if (skipper == null) {
+            throw new NullPointerException("skipper must not be null");
+        }
         if (idGenerator == null) {
             throw new NullPointerException("idGenerator must not be null");
         }
         this.traceContext = traceContext;
         this.storageFactory = storageFactory;
         this.sampler = sampler;
+        this.skipper = skipper;
         this.idGenerator = idGenerator;
     }
 
@@ -119,7 +125,7 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         // always set true because the decision of sampling has been  made on previous nodes
         // TODO need to consider as a target to sample in case Trace object has a sampling flag (true) marked on previous node.
         final boolean sampling = true;
-        final DefaultTrace trace = new DefaultTrace(traceContext, traceId, this.idGenerator.nextContinuedTransactionId(), sampling);
+        final DefaultTrace trace = new DefaultTrace(traceContext, traceId, this.idGenerator.nextContinuedTransactionId(), sampling, skipper);
         // final Storage storage = storageFactory.createStorage();
         final Storage storage = storageFactory.createStorage();
         trace.setStorage(storage);
@@ -153,7 +159,7 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         // TODO need to modify how to inject a datasender
         final boolean sampling = sampler.isSampling();
         if (sampling) {
-            final DefaultTrace trace = new DefaultTrace(traceContext, idGenerator.nextTransactionId(), sampling);
+            final DefaultTrace trace = new DefaultTrace(traceContext, idGenerator.nextTransactionId(), sampling,skipper);
             final Storage storage = storageFactory.createStorage();
             trace.setStorage(storage);
             bind(trace);
@@ -196,7 +202,7 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         
         final TraceId parentTraceId = traceId.getParentTraceId();
         final boolean sampling = true;
-        final DefaultTrace trace = new DefaultTrace(traceContext, parentTraceId, IdGenerator.UNTRACKED_ID, sampling);
+        final DefaultTrace trace = new DefaultTrace(traceContext, parentTraceId, IdGenerator.UNTRACKED_ID, sampling, skipper);
         final Storage storage = storageFactory.createStorage();
         trace.setStorage(new AsyncStorage(storage));
 

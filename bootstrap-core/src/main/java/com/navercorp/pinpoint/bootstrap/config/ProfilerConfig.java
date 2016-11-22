@@ -73,6 +73,10 @@ public interface ProfilerConfig {
 
     int getSamplingRate();
 
+    boolean isSkipDelaysLessThanEnabled();
+
+    int getSkipDelaysLessThanMsec();
+
     boolean isIoBufferingEnable();
 
     int getIoBufferingBufferSize();

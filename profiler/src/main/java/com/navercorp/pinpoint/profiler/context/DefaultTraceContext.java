@@ -16,20 +16,10 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
-import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
+import com.navercorp.pinpoint.bootstrap.sampler.Skipper;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceFactory;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceLocator;
@@ -40,10 +30,15 @@ import com.navercorp.pinpoint.profiler.metadata.Result;
 import com.navercorp.pinpoint.profiler.metadata.SimpleCache;
 import com.navercorp.pinpoint.profiler.sampler.TrueSampler;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
+import com.navercorp.pinpoint.profiler.skipper.TrueSkipper;
 import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
 import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
 import com.navercorp.pinpoint.thrift.dto.TSqlMetaData;
 import com.navercorp.pinpoint.thrift.dto.TStringMetaData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author emeroad
@@ -80,10 +75,10 @@ public class DefaultTraceContext implements TraceContext {
 
     // for test
     public DefaultTraceContext(final AgentInformation agentInformation) {
-        this(LRUCache.DEFAULT_CACHE_SIZE, agentInformation, new LogStorageFactory(), new TrueSampler(), new DefaultServerMetaDataHolder(RuntimeMXBeanUtils.getVmArgs()), TRACE_ACTIVE_THREAD);
+        this(LRUCache.DEFAULT_CACHE_SIZE, agentInformation, new LogStorageFactory(), new TrueSampler(), new TrueSkipper(), new DefaultServerMetaDataHolder(RuntimeMXBeanUtils.getVmArgs()), TRACE_ACTIVE_THREAD);
     }
 
-    public DefaultTraceContext(final int sqlCacheSize, final AgentInformation agentInformation, StorageFactory storageFactory, Sampler sampler, ServerMetaDataHolder serverMetaDataHolder, final boolean traceActiveThread) {
+    public DefaultTraceContext(final int sqlCacheSize, final AgentInformation agentInformation, StorageFactory storageFactory, Sampler sampler, Skipper skipper, ServerMetaDataHolder serverMetaDataHolder, final boolean traceActiveThread) {
         if (agentInformation == null) {
             throw new NullPointerException("agentInformation must not be null");
         }
@@ -93,18 +88,21 @@ public class DefaultTraceContext implements TraceContext {
         if (sampler == null) {
             throw new NullPointerException("sampler must not be null");
         }
+        if (skipper == null) {
+            throw new NullPointerException("skipper must not be null");
+        }
         this.agentInformation = agentInformation;
 
         this.cachingSqlNormalizer = new DefaultCachingSqlNormalizer(sqlCacheSize);
 
-        this.traceFactory = createTraceFactory(storageFactory, sampler, traceActiveThread);
+        this.traceFactory = createTraceFactory(storageFactory, sampler, skipper, traceActiveThread);
 
         this.serverMetaDataHolder = serverMetaDataHolder;
     }
 
-    private TraceFactory createTraceFactory(StorageFactory storageFactory, Sampler sampler, boolean recordActiveThread) {
+    private TraceFactory createTraceFactory(StorageFactory storageFactory, Sampler sampler, Skipper skipper, boolean recordActiveThread) {
         // TODO extract chain TraceFactory??
-        final TraceFactory threadLocalTraceFactory = new ThreadLocalTraceFactory(this, storageFactory, sampler, this.idGenerator);
+        final TraceFactory threadLocalTraceFactory = new ThreadLocalTraceFactory(this, storageFactory, sampler, skipper, this.idGenerator);
         if (recordActiveThread) {
             ActiveTraceFactory activeTraceFactory = (ActiveTraceFactory) ActiveTraceFactory.wrap(threadLocalTraceFactory);
             return activeTraceFactory;

@@ -24,12 +24,7 @@ import com.navercorp.pinpoint.common.util.logger.StdoutCommonLoggerFactory;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.regex.Pattern;
 
 /**
@@ -127,6 +122,10 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     // Sampling
     private boolean samplingEnable = true;
     private int samplingRate = 1;
+
+    // skip small latency
+    private boolean skipDelaysLessThanEnabled = true;
+    private int skipDelaysLessThanMsec = 3000;
 
     // span buffering
     private boolean ioBufferingEnable;
@@ -279,10 +278,19 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return samplingEnable;
     }
 
-
     @Override
     public int getSamplingRate() {
         return samplingRate;
+    }
+
+    @Override
+    public boolean isSkipDelaysLessThanEnabled() {
+        return skipDelaysLessThanEnabled;
+    }
+
+    @Override
+    public int getSkipDelaysLessThanMsec() {
+        return skipDelaysLessThanMsec;
     }
 
     @Override
@@ -413,6 +421,9 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
         this.samplingEnable = readBoolean("profiler.sampling.enable", true);
         this.samplingRate = readInt("profiler.sampling.rate", 1);
+
+        this.skipDelaysLessThanEnabled = readBoolean("profiler.skipper.enable", true);
+        this.skipDelaysLessThanMsec = readInt("profiler.skipper.msec", 1);
 
         // configuration for sampling and IO buffer 
         this.ioBufferingEnable = readBoolean("profiler.io.buffering.enable", true);
@@ -608,6 +619,10 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         builder.append(samplingEnable);
         builder.append(", samplingRate=");
         builder.append(samplingRate);
+        builder.append(", skipDelaysLessThanEnabled=");
+        builder.append(skipDelaysLessThanEnabled);
+        builder.append(", skipDelaysLessThanMsec=");
+        builder.append(skipDelaysLessThanMsec);
         builder.append(", ioBufferingEnable=");
         builder.append(ioBufferingEnable);
         builder.append(", ioBufferingBufferSize=");
