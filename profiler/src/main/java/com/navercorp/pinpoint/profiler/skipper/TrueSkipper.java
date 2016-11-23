@@ -18,12 +18,12 @@ public class TrueSkipper implements Skipper {
 
     @Override
     public boolean needToSkip(int elapsedTimeInMsec) {
-        return true;
+        return false;
     }
 
     @Override
     public boolean needToLog(int elapsedTimeInMsec) {
-        return !needToSkip(elapsedTimeInMsec);
+        return true;
     }
 
     @Override
