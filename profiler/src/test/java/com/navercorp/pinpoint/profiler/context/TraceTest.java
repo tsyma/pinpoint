@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.profiler.context.storage.SpanStorage;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.sender.LoggingDataSender;
+import com.navercorp.pinpoint.profiler.skipper.TrueSkipper;
 import com.navercorp.pinpoint.rpc.FutureListener;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.client.PinpointClientReconnectEventListener;
@@ -40,7 +41,7 @@ public class TraceTest {
     public void trace() {
         DefaultTraceId traceId = new DefaultTraceId("agent", 0, 1);
         DefaultTraceContext defaultTraceContext = getDefaultTraceContext();
-        DefaultTrace trace = new DefaultTrace(defaultTraceContext, traceId, 0L, true);
+        DefaultTrace trace = new DefaultTrace(defaultTraceContext, traceId, 0L, true,new TrueSkipper());
         trace.setStorage(new SpanStorage(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER));
         trace.traceBlockBegin();
 
@@ -57,7 +58,7 @@ public class TraceTest {
     public void popEventTest() {
         DefaultTraceId traceId = new DefaultTraceId("agent", 0, 1);
         DefaultTraceContext defaultTraceContext = getDefaultTraceContext();
-        DefaultTrace trace = new DefaultTrace(defaultTraceContext, traceId, 0L, true);
+        DefaultTrace trace = new DefaultTrace(defaultTraceContext, traceId, 0L, true, new TrueSkipper());
         TestDataSender dataSender = new TestDataSender();
         trace.setStorage(new SpanStorage(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER));
         trace.close();

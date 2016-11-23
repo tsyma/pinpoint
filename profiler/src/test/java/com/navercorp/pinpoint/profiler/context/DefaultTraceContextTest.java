@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.context;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
+import com.navercorp.pinpoint.bootstrap.sampler.Skipper;
 import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.common.util.TransactionIdUtils;
 import com.navercorp.pinpoint.profiler.AgentInformation;
@@ -28,6 +29,8 @@ import com.navercorp.pinpoint.profiler.context.TransactionCounter.SamplingType;
 import com.navercorp.pinpoint.profiler.context.storage.LogStorageFactory;
 import com.navercorp.pinpoint.profiler.metadata.LRUCache;
 import com.navercorp.pinpoint.profiler.sampler.SamplingRateSampler;
+import com.navercorp.pinpoint.profiler.skipper.DefaultSkipper;
+import com.navercorp.pinpoint.profiler.skipper.TrueSkipper;
 import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
 import com.navercorp.pinpoint.test.TestAgentInformation;
 
@@ -94,6 +97,7 @@ public class DefaultTraceContextTest {
                 new TestAgentInformation(),
                 new LogStorageFactory(),
                 sampler,
+                new TrueSkipper(),
                 new DefaultServerMetaDataHolder(RuntimeMXBeanUtils.getVmArgs()),
                 true);
         final TransactionCounter transactionCounter = traceContext.getTransactionCounter();

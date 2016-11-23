@@ -26,6 +26,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 
+import com.navercorp.pinpoint.profiler.skipper.TrueSkipper;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -66,6 +67,7 @@ public class ActiveTraceRepositoryTest {
                 new TestAgentInformation(),
                 logStorageFactory,
                 sampler,
+                new TrueSkipper(),
                 new DefaultServerMetaDataHolder(RuntimeMXBeanUtils.getVmArgs()),
                 true);
         this.transactionCounter = this.traceContext.getTransactionCounter();

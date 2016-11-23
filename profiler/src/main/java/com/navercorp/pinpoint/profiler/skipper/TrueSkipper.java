@@ -5,7 +5,7 @@ import com.navercorp.pinpoint.bootstrap.sampler.Skipper;
 /**
  * Created by Oleg Tsymaenko on 11/22/16.
  */
-public class TrueSkipper implements Skipper {
+public class TrueSkipper implements Skipper {//always log
     @Override
     public boolean isEnabled() {
         return true;

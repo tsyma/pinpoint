@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.profiler.context.ActiveTrace;
 import com.navercorp.pinpoint.profiler.context.DefaultTrace;
 import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
+import com.navercorp.pinpoint.profiler.skipper.TrueSkipper;
 import com.navercorp.pinpoint.test.TestAgentInformation;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCount;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
@@ -70,7 +71,7 @@ public class ActiveThreadServiceTest {
     }
 
     private ActiveTrace createActiveTrace() {
-        DefaultTrace trace = new DefaultTrace(defaultTraceContext, idGenerator.incrementAndGet(), true);
+        DefaultTrace trace = new DefaultTrace(defaultTraceContext, idGenerator.incrementAndGet(), true,new TrueSkipper());
         return new ActiveTrace(trace);
     }
 
