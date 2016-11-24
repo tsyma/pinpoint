@@ -38,6 +38,7 @@
 		this.CONST.CLK_NODE = "ClickNode";
 		this.CONST.CLK_LINK = "ClickLink";
 		this.CONST.CLK_UPDATE_TIME = "ClickUpdateTime";
+		this.CONST.CLK_SET_IP = "ClickSetIp";
 		this.CONST.CLK_HELP = "ClickHelp";
 		this.CONST.CLK_SCATTER_SETTING = "ClickScatterSetting";
 		this.CONST.CLK_DOWNLOAD_SCATTER = "ClickDownloadScatter";

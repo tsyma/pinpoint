@@ -30,6 +30,9 @@
 					scope.timeList = PreferenceService.getUpdateTimes();
 					scope.timeCountDown = 10;
 
+					scope.ip = "all";
+					scope.ipList = PreferenceService.getIpList();
+
 					initialize();
 
 					function initialize() {

@@ -53,6 +53,18 @@
 				time: 60,
 				label: "1 minute"
 			}],
+
+            ips: [{
+                label:"all",
+                ip:"all"
+            },{
+                label:"192.168.0.1",
+                ip:"192.168.0.1"
+            },{
+                label:"172.30.254.137",
+                ip:"172.30.254.137"
+            }],
+
 			iconPath: "/images/icons/"
 		}
 	});
@@ -108,6 +120,9 @@
 		};
 		this.getUpdateTimes = function() {
 			return cfg.cst.updateTimes;
+		};
+		this.getIpList = function() {
+			return cfg.cst.ips;
 		};
 		this.getResponseTypeFormat = function() {
 			var o = {};

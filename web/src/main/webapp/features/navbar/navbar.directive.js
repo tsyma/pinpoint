@@ -42,6 +42,8 @@
 	                scope.timeLeft = 10;
 	                scope.timeCountDown = 10;
 	                scope.timeList = preferenceService.getUpdateTimes();
+					scope.ip = "all";
+					scope.ipList = preferenceService.getIpList();
 					scope.callee = prevCallee = preferenceService.getCalleeByApp( scope.application );
 	                scope.caller = prevCaller = preferenceService.getCallerByApp( scope.application );
 	                scope.rangeList = preferenceService.getDepthList();
@@ -609,6 +611,12 @@
 	                    scope.timeCountDown = time;
 	                    scope.timeLeft = time;
 	                };
+
+					scope.setIp = function (ip) {
+						analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.CLK_SET_IP, ip );
+						scope.ip = ip;
+					};
+
 					scope.setCallee = function(callee) {
 						scope.callee = callee;
 					};

@@ -224,6 +224,8 @@
 	                    $scope.$emit('timeSliderDirective.enableMore');
 	                    oTimeSliderVoService.setInnerFrom(_.last(data.metadata).collectorAcceptTime);
 	                }
+	                alert("1111");
+	                console.error(data);
 	                emitTransactionListToTable(data);
 	
 	                oTimeSliderVoService.addCount(data.metadata.length);
@@ -288,13 +290,49 @@
 					headers: {'Content-Type': 'application/x-www-form-urlencoded'}
 				}).success(function (data, status) {
 					if (angular.isFunction(cb)) {
-						cb(data);
+						var ipCountMap = populateIpCountMap(data);
+						cb(filterIp(data,getUrlVars()['ip']))
 					}
 				}).error(function (data, status) {
 					$window.alert("Failed to fetching the request information.");
 				});
 	        };
-	
+
+			function populateIpCountMap(data) {
+				var ipCountMap = {};
+				for (var i = 0; i < data['metadata'].length; i++) {
+					var ip = data['metadata'][i]['remoteAddr'];
+					if (ipCountMap[ip]) {// map already contains this ip
+						ipCountMap[ip] += 1;
+					} else {
+						ipCountMap[ip] = 1
+					}
+				}
+				return ipCountMap;
+			}
+
+			function filterIp(data, ip) {
+				if (!ip) {
+					return data;
+				}
+				var arr = data['metadata'];
+				var dataNew = {};
+				dataNew['metadata'] = [];
+				for (var i = 0; i < arr.length; i++) {
+					if (ip == arr[i]['remoteAddr']) {
+						dataNew.metadata.push(arr[i]);
+					}
+				}
+				return dataNew;
+			}
+
+			function getUrlVars() {
+				var vars = {};
+				window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (m, key, value) {
+					vars[key] = value;
+				});
+				return vars;
+			}
 	        /**
 	         * change transaction detail
 	         * @param transaction
