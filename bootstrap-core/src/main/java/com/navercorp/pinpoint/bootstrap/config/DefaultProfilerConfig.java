@@ -126,6 +126,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     // skip small latency
     private boolean skipDelaysLessThanEnabled = true;
     private int skipDelaysLessThanMsec = 3000;
+    private boolean alwaysLogExceptions = false;
 
     // span buffering
     private boolean ioBufferingEnable;
@@ -294,6 +295,11 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     @Override
+    public boolean isAlwaysLogExceptions() {
+        return alwaysLogExceptions;
+    }
+
+    @Override
     public boolean isIoBufferingEnable() {
         return ioBufferingEnable;
     }
@@ -424,6 +430,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
         this.skipDelaysLessThanEnabled = readBoolean("profiler.skipper.enable", true);
         this.skipDelaysLessThanMsec = readInt("profiler.skipper.msec", 1);
+        this.alwaysLogExceptions = readBoolean("profiler.skipper.alwaysLogExceptions", false);
 
         // configuration for sampling and IO buffer 
         this.ioBufferingEnable = readBoolean("profiler.io.buffering.enable", true);
@@ -623,6 +630,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         builder.append(skipDelaysLessThanEnabled);
         builder.append(", skipDelaysLessThanMsec=");
         builder.append(skipDelaysLessThanMsec);
+        builder.append(", alwaysLogExceptions=");
+        builder.append(alwaysLogExceptions);
         builder.append(", ioBufferingEnable=");
         builder.append(ioBufferingEnable);
         builder.append(", ioBufferingBufferSize=");
