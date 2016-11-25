@@ -77,6 +77,8 @@ public interface ProfilerConfig {
 
     int getSkipDelaysLessThanMsec();
 
+    boolean isAlwaysLogExceptions();
+
     boolean isIoBufferingEnable();
 
     int getIoBufferingBufferSize();

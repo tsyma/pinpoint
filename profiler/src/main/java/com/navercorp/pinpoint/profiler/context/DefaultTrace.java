@@ -220,7 +220,7 @@ public final class DefaultTrace implements Trace {
     }
 
     private boolean needToLog(Span span) {
-        boolean needToLog = skipper.needToLog(span.getElapsed());
+        boolean needToLog = skipper.needToLog(span.getElapsed(),span.getExceptionInfo()!=null);
         if (isInfo) {
             logger.info("needToLog: {}; time:{} mSec; {}", needToLog, span.getElapsed(), skipper);
         }

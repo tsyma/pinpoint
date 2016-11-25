@@ -11,20 +11,19 @@ public class TrueSkipper implements Skipper {//always log
         return true;
     }
 
-    @Override
-    public int getSkipLessThan() {
+    public int getSkipElapsedTimeInMsecLessThan() {
         return 0;
     }
-
     @Override
-    public boolean needToSkip(int elapsedTimeInMsec) {
-        return false;
-    }
-
-    @Override
-    public boolean needToLog(int elapsedTimeInMsec) {
+    public boolean isAlwaysLogExceptions() {
         return true;
     }
+
+    @Override
+    public boolean needToLog(int elapsedTimeInMsec, boolean isException) {
+        return true;
+    }
+
 
     @Override
     public String toString() {

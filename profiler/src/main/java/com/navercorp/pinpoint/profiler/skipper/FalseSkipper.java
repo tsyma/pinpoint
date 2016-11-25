@@ -12,17 +12,17 @@ public class FalseSkipper implements Skipper {//always skip
     }
 
     @Override
-    public int getSkipLessThan() {
+    public int getSkipElapsedTimeInMsecLessThan() {
         return 0;
     }
 
     @Override
-    public boolean needToSkip(int elapsedTimeInMsec) {
-        return true;
+    public boolean isAlwaysLogExceptions() {
+        return false;
     }
 
     @Override
-    public boolean needToLog(int elapsedTimeInMsec) {
+    public boolean needToLog(int elapsedTimeInMsec, boolean isException) {
         return false;
     }
 

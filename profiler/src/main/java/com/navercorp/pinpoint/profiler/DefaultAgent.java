@@ -382,9 +382,10 @@ public class DefaultAgent implements Agent {
     private Skipper createSkipper() {
         boolean isSkipDelaysLessThanEnabled = this.profilerConfig.isSkipDelaysLessThanEnabled();
         int getSkipDelaysLessThanMsec = this.profilerConfig.getSkipDelaysLessThanMsec();
+        boolean isAlwaysLogExceptions = this.profilerConfig.isAlwaysLogExceptions();
 
-        SkipperFactory skipperFactory = new SkipperFactory();
-        return skipperFactory.createSkipper(isSkipDelaysLessThanEnabled, getSkipDelaysLessThanMsec);
+        SkipperFactory skipperFactory = new SkipperFactory(isSkipDelaysLessThanEnabled, getSkipDelaysLessThanMsec, isAlwaysLogExceptions);
+        return skipperFactory.createSkipper();
     }
 
     protected ServerMetaDataHolder createServerMetaDataHolder() {
