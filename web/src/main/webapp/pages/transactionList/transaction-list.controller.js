@@ -13,8 +13,8 @@
 		TRANSACTION_LIST_RESIZER: "transactionList.resizer"
 	});
 	
-	pinpointApp.controller("TransactionListCtrl", ["TransactionListConfig", "$scope", "$location", "locationService", "$routeParams", "$rootScope", "$timeout", "$window", "$http", "webStorage", "TimeSliderVoService", "TransactionDaoService", "AnalyticsService", "helpContentService",
-	    function (cfg, $scope, $location, locationService, $routeParams, $rootScope, $timeout, $window, $http, webStorage, TimeSliderVoService, oTransactionDaoService, analyticsService, helpContentService) {
+	pinpointApp.controller("TransactionListCtrl", ["TransactionListConfig", "$scope", '$log', "$location", "locationService", "$routeParams", "$rootScope", "$timeout", "$window", "$http", "webStorage", "TimeSliderVoService", "TransactionDaoService", "AnalyticsService", "helpContentService",
+	    function (cfg, $scope, $log, $location, locationService, $routeParams, $rootScope, $timeout, $window, $http, webStorage, TimeSliderVoService, oTransactionDaoService, analyticsService, helpContentService) {
 			analyticsService.send(analyticsService.CONST.TRANSACTION_LIST_PAGE);
 	        // define private variables
 	        var nFetchCount, nLastFetchedIndex, htTransactionInfo, htTransactionData, oTimeSliderVoService;
@@ -22,8 +22,8 @@
 	
 	        // define private variables of methods
 	        var fetchStart, fetchNext, fetchAll, emitTransactionListToTable, getQuery, getTransactionList, changeTransactionDetail,
-				getTransactionInfoFromWindow, hasScatterByApplicationName, getDataByTransactionInfo, getTransactionInfoFromURL, hasParent, hasValidParam, initAndLoad, alertAndMove;
-	
+				getTransactionInfoFromWindow, hasScatterByApplicationName, getDataByTransactionInfo, getTransactionInfoFromURL, hasParent, hasValidParam, initAndLoad, alertAndMove,
+                populateIpCountMap,getUrlVars,filterIp;
 	        /**
 	         * initialization
 	         */
@@ -224,8 +224,6 @@
 	                    $scope.$emit('timeSliderDirective.enableMore');
 	                    oTimeSliderVoService.setInnerFrom(_.last(data.metadata).collectorAcceptTime);
 	                }
-	                alert("1111");
-	                console.error(data);
 	                emitTransactionListToTable(data);
 	
 	                oTimeSliderVoService.addCount(data.metadata.length);
@@ -233,7 +231,7 @@
 	                $scope.sidebarLoading = false;
 	            });
 	        };
-	
+
 	        /**
 	         * fetch all
 	         */
@@ -279,7 +277,56 @@
 					}
 	            });
 	        };
-	
+
+            populateIpCountMap = function (data) {
+                $scope.$log = $log;
+                $scope.message = data;
+                var ipCountMap = {};
+                for (var i = 0; i < data['metadata'].length; i++) {
+                    $window.alert(data['metadata'][i]);
+                    var ip = data['metadata'][i]['remoteAddr'];
+                    $scope.message = ip;
+                    if (ip in ipCountMap) {// already contains ip
+                        ipCountMap[ip] += 1;
+                    } else {
+                        ipCountMap[ip] = 1;
+                    }
+                }
+                return ipCountMap;
+            };
+
+            filterIp = function (data, ip) {
+                $scope.$log = $log;
+                $scope.message = ip;
+                $scope.message = data;
+
+
+                if (!ip) {
+                    return data;
+                }
+                var arr = data['metadata'];
+                $scope.message = arr;
+                var dataNew = {};
+                dataNew['metadata'] = [];
+                var n = 0;
+                for (var i = 0; i < arr.length; i++) {
+                    if (ip == arr[i]['remoteAddr']) {
+                        dataNew.metadata[n++]=arr[i];
+                    }
+                }
+                $scope.message = dataNew;
+                return dataNew;
+            };
+
+            getUrlVars = function () {
+                var vars = {};
+                $window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (m, key, value) {
+                    vars[key] = value;
+                });
+                return vars;
+            };
+
+
 	        /**
 	         * get transaction list
 	         * @param query
@@ -291,48 +338,16 @@
 				}).success(function (data, status) {
 					if (angular.isFunction(cb)) {
 						var ipCountMap = populateIpCountMap(data);
-						cb(filterIp(data,getUrlVars()['ip']))
+						var ip =getUrlVars()['ip'];
+						var filteredIPsData=filterIp(data,ip);
+						cb(filteredIPsData);
 					}
 				}).error(function (data, status) {
 					$window.alert("Failed to fetching the request information.");
 				});
 	        };
 
-			function populateIpCountMap(data) {
-				var ipCountMap = {};
-				for (var i = 0; i < data['metadata'].length; i++) {
-					var ip = data['metadata'][i]['remoteAddr'];
-					if (ipCountMap[ip]) {// map already contains this ip
-						ipCountMap[ip] += 1;
-					} else {
-						ipCountMap[ip] = 1
-					}
-				}
-				return ipCountMap;
-			}
 
-			function filterIp(data, ip) {
-				if (!ip) {
-					return data;
-				}
-				var arr = data['metadata'];
-				var dataNew = {};
-				dataNew['metadata'] = [];
-				for (var i = 0; i < arr.length; i++) {
-					if (ip == arr[i]['remoteAddr']) {
-						dataNew.metadata.push(arr[i]);
-					}
-				}
-				return dataNew;
-			}
-
-			function getUrlVars() {
-				var vars = {};
-				window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (m, key, value) {
-					vars[key] = value;
-				});
-				return vars;
-			}
 	        /**
 	         * change transaction detail
 	         * @param transaction

@@ -18,9 +18,9 @@
     cursor: auto;
 }
 .timeslider_more {
-    /*position: absolute;*/
+    position: absolute;
     top:4px;
-    /*left: 200px;*/
+    left: 200px;
 }
 
 .timeslider .jslider .jslider-transition {
