@@ -6,9 +6,5 @@ package com.navercorp.pinpoint.bootstrap.sampler;
 public interface Skipper {
     boolean isEnabled();
 
-    int getSkipElapsedTimeInMsecLessThan();
-
-    boolean isAlwaysLogExceptions();
-
     boolean needToLog(int elapsedTimeInMsec, boolean isException);
 }

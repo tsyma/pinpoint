@@ -209,7 +209,9 @@ public final class DefaultTrace implements Trace {
         } else {
             final Span span = spanRecorder.getSpan();
             calcElapsedTime(span);
-            if (needToLog(span)) logSpan(span);
+            if (needToLog(span)) {
+                logSpan(span);
+            }
         }
 
         final Storage copyStorage = this.storage;

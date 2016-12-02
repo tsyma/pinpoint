@@ -25,13 +25,10 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.common.util.SystemPropertyKey;
 import com.navercorp.pinpoint.profiler.AgentInformation;
-import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataHolder;
-import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
-import com.navercorp.pinpoint.profiler.context.ThreadLocalTraceFactory;
 import com.navercorp.pinpoint.profiler.context.storage.LogStorageFactory;
 import com.navercorp.pinpoint.profiler.sampler.TrueSampler;
 
-import com.navercorp.pinpoint.profiler.skipper.TrueSkipper;
+import com.navercorp.pinpoint.profiler.skipper.NeverLogSkipper;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -44,8 +41,8 @@ public class ThreadLocalTraceFactoryTest {
         ServerMetaDataHolder serverMetaDataHolder = new DefaultServerMetaDataHolder(Collections.<String>emptyList());
         AgentInformation agentInformation = new AgentInformation("agentId", "applicationName", System.currentTimeMillis(), 10, "test", "127.0.0.1", ServiceType.STAND_ALONE,
                 JvmUtils.getSystemProperty(SystemPropertyKey.JAVA_VERSION), Version.VERSION);
-        DefaultTraceContext traceContext = new DefaultTraceContext(100, agentInformation, logStorageFactory, trueSampler,new TrueSkipper(), serverMetaDataHolder, false);
-        return new ThreadLocalTraceFactory(traceContext, logStorageFactory, trueSampler,new TrueSkipper(), idGenerator);
+        DefaultTraceContext traceContext = new DefaultTraceContext(100, agentInformation, logStorageFactory, trueSampler,new NeverLogSkipper(), serverMetaDataHolder, false);
+        return new ThreadLocalTraceFactory(traceContext, logStorageFactory, trueSampler,new NeverLogSkipper(), idGenerator);
     }
 
     @Test
