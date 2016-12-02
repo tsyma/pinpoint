@@ -385,7 +385,7 @@ public class DefaultAgent implements Agent {
         boolean isAlwaysLogExceptions = this.profilerConfig.isAlwaysLogExceptions();
 
         SkipperFactory skipperFactory = new SkipperFactory(isSkipDelaysLessThanEnabled, getSkipDelaysLessThanMsec, isAlwaysLogExceptions);
-        return skipperFactory.createSkipper();
+        return skipperFactory.skipperInstance();
     }
 
     protected ServerMetaDataHolder createServerMetaDataHolder() {

@@ -5,18 +5,10 @@ import com.navercorp.pinpoint.bootstrap.sampler.Skipper;
 /**
  * Created by Oleg Tsymaenko on 11/22/16.
  */
-public class TrueSkipper implements Skipper {//always log
+public class AlwaysLogSkipper implements Skipper {//always pass (always log)
     @Override
     public boolean isEnabled() {
-        return true;
-    }
-
-    public int getSkipElapsedTimeInMsecLessThan() {
-        return 0;
-    }
-    @Override
-    public boolean isAlwaysLogExceptions() {
-        return true;
+        return false;
     }
 
     @Override
@@ -24,9 +16,8 @@ public class TrueSkipper implements Skipper {//always log
         return true;
     }
 
-
     @Override
     public String toString() {
-        return "TrueSkipper";
+        return "AlwaysLogSkipper";
     }
 }

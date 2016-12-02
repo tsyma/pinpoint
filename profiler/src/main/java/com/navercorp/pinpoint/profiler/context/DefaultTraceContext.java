@@ -30,7 +30,7 @@ import com.navercorp.pinpoint.profiler.metadata.Result;
 import com.navercorp.pinpoint.profiler.metadata.SimpleCache;
 import com.navercorp.pinpoint.profiler.sampler.TrueSampler;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
-import com.navercorp.pinpoint.profiler.skipper.TrueSkipper;
+import com.navercorp.pinpoint.profiler.skipper.NeverLogSkipper;
 import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
 import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
 import com.navercorp.pinpoint.thrift.dto.TSqlMetaData;
@@ -75,7 +75,7 @@ public class DefaultTraceContext implements TraceContext {
 
     // for test
     public DefaultTraceContext(final AgentInformation agentInformation) {
-        this(LRUCache.DEFAULT_CACHE_SIZE, agentInformation, new LogStorageFactory(), new TrueSampler(), new TrueSkipper(), new DefaultServerMetaDataHolder(RuntimeMXBeanUtils.getVmArgs()), TRACE_ACTIVE_THREAD);
+        this(LRUCache.DEFAULT_CACHE_SIZE, agentInformation, new LogStorageFactory(), new TrueSampler(), new NeverLogSkipper(), new DefaultServerMetaDataHolder(RuntimeMXBeanUtils.getVmArgs()), TRACE_ACTIVE_THREAD);
     }
 
     public DefaultTraceContext(final int sqlCacheSize, final AgentInformation agentInformation, StorageFactory storageFactory, Sampler sampler, Skipper skipper, ServerMetaDataHolder serverMetaDataHolder, final boolean traceActiveThread) {
