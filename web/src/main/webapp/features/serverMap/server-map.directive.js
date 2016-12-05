@@ -51,7 +51,7 @@
 	                // define private variables
 	                var bUseNodeContextMenu, bUseLinkContextMenu, htLastQuery,
 	                    bUseBackgroundContextMenu, oServerMap, oAlertService, oProgressBarService, htLastMapData, htLastLink, htLastNode,
-	                    sLastSelection, $fromAgentName, $toAgentName, bIsFilterWizardLoaded, htLastMergedMapData, $serverMapTime, $urlPattern;
+	                    sLastSelection, $fromAgentName, $toAgentName, bIsFilterWizardLoaded, htLastMergedMapData, $serverMapTime, $urlPattern, $userAddress;
 	
 	                // define private variables of methods
 	                var showServerMap, setNodeContextMenuPosition, reset, emitDataExisting,
@@ -93,6 +93,7 @@
 	                $fromAgentName.select2();
 	                $toAgentName.select2();
 					$urlPattern = element.find("#urlPattern");
+					$userAddress = element.find("#userAddress");
 	                bIsFilterWizardLoaded = false;
 	                scope.mergeTypeList = [];
 	                scope.mergeStatus = {};
@@ -120,6 +121,7 @@
 	                    scope.linkContextMenuStyle = '';
 	                    scope.backgroundContextMenuStyle = '';
 						$urlPattern.val("");
+						$userAddress.val("");
 	                    scope.responseTime = {
 	                        from: 0,
 	                        to: 30000
@@ -534,6 +536,7 @@
 	                                        scope.oNavbarVoService);
 	                                    if (result) {
 	                                        $urlPattern.val(result.oServerMapFilterVoService.getRequestUrlPattern());
+                                            $userAddress.val(result.oServerMapFilterVoService.getUserAddress());
 	                                        scope.responseTime.from = result.oServerMapFilterVoService.getResponseFrom();
 	                                        var to = result.oServerMapFilterVoService.getResponseTo();
 	                                        scope.responseTime.to = to === 'max' ? 30000 : to;
@@ -653,8 +656,9 @@
 	                        .setResponseFrom(scope.responseTime.from)
 	                        .setResponseTo(scope.responseTime.to)
 	                        .setIncludeException(scope.includeFailed)
-	                        .setRequestUrlPattern($base64.encode($urlPattern.val()));
-	
+	                        .setRequestUrlPattern($base64.encode($urlPattern.val()))
+	                        .setUserAddress($userAddress.val());
+
 	                    if (scope.fromAgentName) {
 	                        oServerMapFilterVoService.setFromAgentName(scope.fromAgentName);
 	                    }

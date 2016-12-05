@@ -32,7 +32,9 @@
 	                    if (oServerMapFilterVoService.getRequestUrlPattern()) {
 	                        scope.urlPattern = $base64.decode(oServerMapFilterVoService.getRequestUrlPattern());
 	                    }
-	                    scope.includeException = oServerMapFilterVoService.getIncludeException() ? 'Failed Only' : 'Success + Failed';
+                        scope.userAddress = oServerMapFilterVoService.getUserAddress();
+
+                        scope.includeException = oServerMapFilterVoService.getIncludeException() ? 'Failed Only' : 'Success + Failed';
 	
 	                    if (angular.isNumber(oServerMapFilterVoService.getResponseFrom()) &&
 							oServerMapFilterVoService.getResponseTo()) {
@@ -57,7 +59,7 @@
 	                    } else {
 	                        scope.agentFilterInfo = false;
 	                    }
-	
+
 	                };
 	
 	                /**
@@ -67,6 +69,7 @@
 	                    scope.urlPattern = 'none';
 	                    scope.responseTime = 'none';
 	                    scope.includeException = 'none';
+	                    scope.userAddress = 'none';
 	                };
 	
 	                /**

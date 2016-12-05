@@ -1,17 +1,4 @@
 <div class="timeslider navbar main-navbar bs-docs-nav">
-<style>
-    .left1 {
-        left: 180px;
-    }
-    .left2 {
-        left: 300px;
-    }
-
-    .lest3 {
-        left:500px;
-    }
-
-</style>
     <div class="nav-container">
         <a href="/" class="navbar-brand"><img class="brand" src="/images/logo2.png" width="116" height="18"></a>
         <div class="timeslider_more left1"
@@ -22,25 +9,6 @@
                     ({{oTimeSliderVoService.getCount() | number}}/{{oTimeSliderVoService.getTotal() | number}})
                 </span>
             </button>
-        </div>
-
-
-
-        <div class="timeslider_more left2" >
-            <ul class="nav navbar-nav">
-            <li class="for-datetimepicker22" id="ipDropDown">
-                <div class="btn-group btn-group-sm input-group input-group-sm" style="margin-top:0px;padding-left:6px;width:146px;" ng-show="true">
-                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                        {{ip}}<span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu" role="menu">
-                        <li ng-repeat="t in ipList">
-                            <a href ng-click="setIp(t.ip)">{{t.label}}</a>
-                        </li>
-                    </ul>
-                </div>
-            </li>
-            </ul>
         </div>
         <div class="timeslider_wrapper lest3" ng-show="oTimeSliderVoService.getInnerFrom() && oTimeSliderVoService.getInnerTo()">
             <input class="timeslider_input" type="slider" name="price" value="{{oTimeSliderVoService.getInnerFrom()}};{{oTimeSliderVoService.getInnerTo()}}" />

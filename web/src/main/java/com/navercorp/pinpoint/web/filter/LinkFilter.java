@@ -28,9 +28,13 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.filter.agent.*;
 import com.navercorp.pinpoint.web.filter.responsetime.ResponseTimeFilter;
 import com.navercorp.pinpoint.web.filter.responsetime.ResponseTimeFilterFactory;
+import com.navercorp.pinpoint.web.filter.useraddres.UserAddressFilter;
+import com.navercorp.pinpoint.web.filter.useraddres.UserAddressFilterBypass;
+import com.navercorp.pinpoint.web.filter.useraddres.UserAddressFilterImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 /**
  *
@@ -62,6 +66,7 @@ public class LinkFilter implements Filter {
     private final List<RpcHint> rpcHintList;
 
     private final URLPatternFilter acceptURLFilter;
+    private final UserAddressFilter userAddressFilter;
 
     private final ServiceTypeRegistryService serviceTypeRegistryService;
 
@@ -114,7 +119,19 @@ public class LinkFilter implements Filter {
         // TODO fix : fromSpan base rpccall filter
         this.acceptURLFilter = createPatternFilter(filterDescriptor);
         logger.info("acceptURLFilter:{}", acceptURLFilter);
+
+        this.userAddressFilter = createUserAddressFilter(filterDescriptor);
+        logger.info("userAddressFilter:{}", userAddressFilter);
+
     }
+
+    private UserAddressFilter createUserAddressFilter(FilterDescriptor filterDescriptor) {
+        if (StringUtils.isEmpty(filterDescriptor.getUserAddress())) {
+            return new UserAddressFilterBypass();
+        }
+        return new UserAddressFilterImpl(filterDescriptor.getUserAddress());
+    }
+
 
     private URLPatternFilter createPatternFilter(FilterDescriptor filterDescriptor) {
         if (filterDescriptor.getUrlPattern() == null) {
@@ -426,21 +443,22 @@ public class LinkFilter implements Filter {
 
     private List<SpanBo> findFromNode(List<SpanBo> transaction) {
         final List<SpanBo> node = findNode(transaction, fromApplicationName, fromServiceDescList, fromAgentFilter);
+        final List<SpanBo> node2 = findByAddress(node);
 //        RpcURLPatternFilter rpcURLPatternFilter = new RpcURLPatternFilter("/**/*");
 //        if (!rpcURLPatternFilter.accept(node)) {
 //            return Collections.emptyList();
 //        }
-        return node;
+        return node2;
     }
 
     private List<SpanBo> findToNode(List<SpanBo> transaction) {
         final List<SpanBo> node = findNode(transaction, toApplicationName, toServiceDescList, toAgentFilter);
-        if (!acceptURLFilter.accept(node)) {
+        final List<SpanBo> node2 = findByAddress(node);
+        if (!acceptURLFilter.accept(node2)) {
             return Collections.emptyList();
         }
-        return node;
+        return node2;
     }
-
 
     private List<SpanBo> findNode(List<SpanBo> nodeList, String findApplicationName, List<ServiceType> findServiceCode, AgentFilter agentFilter) {
         List<SpanBo> findList = null;
@@ -462,6 +480,21 @@ public class LinkFilter implements Filter {
         return findList;
     }
 
+    private List<SpanBo> findByAddress(List<SpanBo> nodeList) {
+        List<SpanBo> findList = null;
+        for (SpanBo spanBo : nodeList) {
+                if (userAddressFilter.accept(spanBo)) {
+                    if (findList == null) {
+                        findList = new ArrayList<>();
+                    }
+                    findList.add(spanBo);
+                }
+        }
+        if (findList == null) {
+            return Collections.emptyList();
+        }
+        return findList;
+    }
 
 
     private boolean isToNode(String applicationId, ServiceType serviceType) {
@@ -520,6 +553,7 @@ public class LinkFilter implements Filter {
         sb.append(", filterType=").append(filterType);
         sb.append(", rpcHintList=").append(rpcHintList);
         sb.append(", acceptURLFilter=").append(acceptURLFilter);
+        sb.append(", userAddressFilter=").append(userAddressFilter);
         sb.append('}');
         return sb.toString();
     }

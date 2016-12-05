@@ -213,6 +213,7 @@
 	                toServiceType: filter.tst,
 	                toApplication: filter.ta,
 	                toKey: this.findNodeKeyByApplicationName(filter.ta, applicationMapData),
+					userAddress: filter.addr,
 	                nodeKey: '' // for node filtering in the future,,,,
 	            });
 	        }, this);

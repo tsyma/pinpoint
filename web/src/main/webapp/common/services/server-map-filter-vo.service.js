@@ -24,6 +24,7 @@
 	        this._sResponseTo = 'max';
 	        this._bIncludeException = null;
 	        this._sRequestUrlPattern = '';
+            this._sUserAddress = null;
 	
 	        this.setMainApplication = function (mainApplication) {
 	            if (angular.isString(mainApplication)) {
@@ -188,6 +189,18 @@
 	        this.getRequestUrlPattern = function () {
 	            return self._sRequestUrlPattern;
 	        };
+
+            this.setUserAddress = function (userAddress) {
+                if (angular.isString(userAddress)) {
+                    self._sUserAddress = userAddress;
+                } else {
+                    // throw new Error('userAddress should be string in ServerMapFilterVo.');
+                }
+                return self;
+            };
+            this.getUserAddress = function () {
+                return self._sUserAddress;
+            };
 	
 	        this.toJson = function () {
 	            var filter = {
@@ -205,6 +218,9 @@
 	            if (self._sRequestUrlPattern) {
 	                filter.url = self._sRequestUrlPattern;
 	            }
+                if (self._sUserAddress) {
+                    filter.addr = self._sUserAddress;
+                }
 	            if (self._sFromAgentName) {
 	                filter.fan = self._sFromAgentName;
 	            }
@@ -241,6 +257,9 @@
 	            if (dataSet.tan) {
 	                this.setToAgentName(dataSet.tan);
 	            }
+                if (dataSet.addr) {
+                    this.setUserAddress(dataSet.addr);
+                }
 	        }
 	    };
 	}]);

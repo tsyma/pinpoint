@@ -52,6 +52,8 @@ public class FilterDescriptor {
      */
     private Boolean includeException = null;
 
+    private String userAddress = null;
+
     public FilterDescriptor() {
     }
 
@@ -177,6 +179,15 @@ public class FilterDescriptor {
         this.toAgentId = toAgentId;
     }
 
+    public String getUserAddress() {
+        return userAddress;
+    }
+
+    @JsonSetter(value = "addr")
+    public void setUserAddress(String userAddress) {
+        this.userAddress = userAddress;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("FilterDescriptor{");
@@ -190,6 +201,7 @@ public class FilterDescriptor {
         sb.append(", url='").append(url).append('\'');
         sb.append(", fromAgentId='").append(fromAgentId).append('\'');
         sb.append(", toAgentId='").append(toAgentId).append('\'');
+        sb.append(", userAddress='").append(userAddress).append('\'');
         sb.append('}');
         return sb.toString();
     }
